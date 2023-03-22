@@ -1,0 +1,301 @@
+\documentclass[compress, aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{braket}
+\newcommand{\identity}[0]{\mathbf{1}}
+\newcommand{\Op}[1]{\ensuremath{\mathsf{\hat{#1}}}}
+\newcommand{\TildeOp}[1]{\ensuremath{\mathsf{\tilde{#1}}}}
+\newcommand{\Abs}[1]{\left|#1\right|}
+\newcommand{\AbsSq}[1]{\left|#1\right|^2}
+\newcommand{\Norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\NormSq}[1]{\Norm{#1}^2}
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\Tr}{\mathrm{tr}}
+\newcommand{\SU}{\ensuremath{\text{SU}}}
+\newcommand{\ketbra}[2]{\ket{#1}\!\bra{#2}}
+\newcommand{\mirror}{\text{mirror}}
+\newcommand{\tgt}{\text{tgt}}
+\newcommand{\pop}{\operatorname{pop}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\ii}{\mathrm{i}}
+\newcommand{\Integers}{\mathbb{Z}}
+\renewcommand{\Re}{\mathrm{Re}}
+\renewcommand{\Im}{\mathrm{Im}}
+\newcommand{\partdifquo}[2][{}]{\frac{\partial #1}{\partial #2}}
+\newcommand{\Complex}{\mathbb{C}}
+\usepackage{textcomp} % provides \textmu
+\usepackage{tikz,pgflibraryshapes}
+\usepackage{hyperref}
+\usepackage{fontawesome}
+\usetikzlibrary{arrows.meta, calc, decorations.pathmorphing, backgrounds, positioning}
+
+%% Notes on screenshots:
+%
+% - Make sure ``Reduce Transparency'' in the Accessibility settings (Display) is off
+% - Size window to 1270 x 625
+% - Take screenshots at retina resolution
+% - Terminal (iTerm) is at standard size +5 font size increases
+
+
+\input{arlwide_theme/theme.tex}
+
+\title{QuantumControl.jl: A modern framework \\for quantum optimal control}
+\author[Michael Goerz~\raisebox{0.75pt}{\tikz \fill (0,0) circle (0.75pt);}~\raisebox{-1.4pt}{\includegraphics{images/mastodon}}\kern-0.5pt\href{https://qubit-social.xyz/@goerz}{goerz@qubit-social.xyz}]{
+{\bf Michael~H.~Goerz}, Sebastián~C.~Carrasco, Vladimir~S.~Malinovsky}
+\institute[Army Research Lab]{DEVCOM Army Research Lab}
+\date{APS March Meeting 2023}
+
+\begin{document}
+
+{%  Title page
+  \setbeamertemplate{footline}{}
+  \frame{\titlepage}
+}
+\addtocounter{framenumber}{-1}
+
+
+\begin{frame}{JuliaQuantumControl}
+  \begin{textblock}{15.5}(0.25,1.00)
+    \includegraphics[width=\textwidth]{images/01_01_juliaquantumcontrol}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}{JuliaQuantumControl}
+  \begin{textblock}{15.5}(0.25,1.00)
+    \includegraphics[width=\textwidth]{images/01_02_packages}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}{QuantumPropagators.jl}
+  \begin{textblock}{15.5}(0.25,1.00)
+    \includegraphics[width=\textwidth]{images/01_02_packages_hlqp}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}{QuantumControl.jl}
+  \begin{textblock}{15.5}(0.25,1.00)
+    \includegraphics[width=\textwidth]{images/01_02_packages_hlqc}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}{Julia}
+  \begin{textblock}{15.5}(0.25,1.00)
+    \includegraphics[width=\textwidth]{images/01_03_julia}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}
+  \vfill
+  \begin{center}
+    \huge
+    \subhead{Flexibility}
+  \end{center}
+  \vfill
+\end{frame}
+
+
+\begin{frame}{Rotating Tractor Interferometer}
+  \begin{textblock}{6.5}(0.5,2.50)
+    \includegraphics[width=\textwidth]{images/rottai}
+    {\footnotesize
+      B. Dash \emph{et al.} ``Rotation sensing using tractor atom interferometry'' (in preparation)
+    }
+  \end{textblock}
+  \begin{textblock}{6.5}(8.0,1.50)
+    \begin{equation*}
+      \Op{H}_{\pm}
+        = -\frac{\hbar^2}{2mR^2}\frac{\partial^2}{\partial \theta^2} +
+          V_0 \cos\left[m (\theta + \phi_{\pm}(t) )\right]
+    \end{equation*}
+    \begin{align*}
+      \onslide<2->{%
+        \text{typically:}\quad
+        & \Op{H} = \Op{H}_0 + \epsilon(t) \Op{H}_1 \quad \\
+        & \text{with control $\epsilon(t)$}
+        \\
+      }
+      \\
+      \onslide<3->{%
+        \text{here:}\quad
+        & \Op{H} = \Op{T} + \Op{V}(\theta \pm \phi(t)) \\
+        & \text{with control $\phi(t)$} \\
+      }
+    \end{align*}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}{Multiple Dispatch for $\Op{H} = \Op{T} + \Op{V}(\theta \pm \phi(t))$}
+  \begin{textblock}{15.5}(0.25,1.00)
+    \includegraphics<2->[width=\textwidth]{images/02a_splitop}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}{Arbitrary Functionals}
+  \begin{textblock}{15}(0.5,1.30)
+    \onslide<2->{%
+      \subhead{Quantum Gate Concurrence}:
+      Max concurrence of $\Op{U} \ket{\Psi}$ for separable input state $\ket{\Psi}$
+    }
+    \onslide<3->{%
+      \par
+      \vspace{10pt}
+      \par
+      Given two-qubit gate $\Op{U}$ with $U_{ij} = \Braket{\Phi_i | \Psi_j(T)}$ for $\ket{\phi_i} = \ket{00}, \ket{01}, \ket{10}, \ket{11}$
+    }
+    \onslide<4->{%
+      \par
+      \begin{enumerate}
+        \item
+          $\TildeOp{U} = (\Op{\sigma}_y \otimes \Op{\sigma}_y) \,\Op{U}\, (\Op{\sigma}_y \otimes \Op{\sigma}_y)$
+        \item
+          $
+            c_1, c_2, c_3 \propto
+            \text{eigvals}\left( \Op{U} \TildeOp{U} \right)
+            \
+          $
+        \item
+          $
+            C(\Op{U})
+              = \max \Abs{\sin(c_{1,2,3} \pm c_{3,1,2})}
+          $
+      \end{enumerate}
+      {\footnotesize Childs \textit{et al.} Phys. Rev. A 68, 052311 (2003)}
+    }
+  \end{textblock}
+  \begin{textblock}{7.5}(7.25,3.00)
+    \onslide<5->{%
+      \begin{equation*}
+        \Rightarrow \quad J_T(\Op{U})
+        =
+        \frac{1}{2} \Big(1 - C(\Op{U})\Big) +
+        \frac{1}{2} \Big(1 - \underbrace{\frac{1}{4}\tr[\Op{U}\Op{U}^\dagger]}_{\text{unitarity}}\Big)
+      \end{equation*}
+
+    }
+  \end{textblock}
+  \begin{textblock}{15}(0.5,6.00)
+    \only<6>{%
+      \begin{center}
+        {\color{Red} \Large Not analytic!}
+      \end{center}
+    }
+    \onslide<7->{%
+      \subhead{Semi-automatic differentiation}: Calculate $\frac{\partial J_T} {\partial \bra{\Psi_k(T)}}$ via automatic differentiation.
+      \vspace{4pt}
+      \par
+      $\Rightarrow$ automatic gradients for {\color{Red} arbitrary functionals} with {\color{Red} no numerical overhead} \\compared to analytical gradients
+      \par
+      {\footnotesize \color{Red} Goerz \textit{et al.} Quantum 6, 871 (2022)}
+    }
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}{Example: Gate Concurrence Maximization}
+  \begin{textblock}{15.5}(0.25,1.00)
+    \includegraphics<2>[width=\textwidth]{images/02b_01_pe_ham}
+    \includegraphics<3>[width=\textwidth]{images/02b_02_pe_problem}
+    \includegraphics<4>[width=\textwidth]{images/02b_03_pe_opt}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}
+  \vfill
+  \begin{center}
+    \huge
+    \subhead{Performance}
+  \end{center}
+  \vfill
+\end{frame}
+
+\begin{frame}{Benchmark for Chebychev Propagator -- Large Hilbert Space}
+  \begin{textblock}{15.5}(0.25,1.00)
+    \begin{center}%
+      \includegraphics<1>{images/benchmark_cheby_dense_1000_1}%
+      \includegraphics<2>{images/benchmark_cheby_dense_1000_2}%
+      \includegraphics<3>{images/benchmark_cheby_dense_1000_3}%
+      \includegraphics<4>{images/benchmark_cheby_dense_1000_4}%
+    \end{center}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}{Benchmark for Chebychev Propagator -- Large Hilbert Space (sparse)}
+  \begin{textblock}{15.5}(0.25,1.00)
+    \begin{center}%
+      \includegraphics<2>{images/benchmark_cheby_sparse_1000_2}%
+      \includegraphics<3>{images/benchmark_cheby_sparse_1000_3}%
+    \end{center}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}{Benchmark for Chebychev Propagator -- Small Hilbert Space}
+  \begin{textblock}{15.5}(0.25,1.00)
+    \begin{center}%
+      \includegraphics<2>{images/benchmark_cheby_dense_10_3}%
+      \includegraphics<3>{images/benchmark_cheby_dense_10_4}%
+    \end{center}
+  \end{textblock}
+\end{frame}
+
+
+\begin{frame}{Conclusions}
+  \begin{textblock}{14.5}(1.25,1.10)
+    \begin{center}
+      \url{https://github.com/JuliaQuantumControl}
+    \end{center}
+    \vspace{8pt}
+    \subhead{Flexibility:}
+    \begin{itemize}
+      \item Interactive usage (notebooks)
+      \item Use custom project-specific data structures
+      \item Tie into Julia ecosystem (e.g., automatic differentiation, GPU computing)
+    \end{itemize}
+    \par
+    \vspace{10pt}
+    \subhead{Performance:}
+    \begin{itemize}
+      \item Out of the Box: match Fortran (ifort + MKL)
+      \item GPU, Sparse Matrices, StaticArrays: beat Fortran ($> 2\times$)
+    \end{itemize}
+  \end{textblock}
+\end{frame}
+
+\begin{frame}{Outlook}
+  \begin{textblock}{14.5}(1.25,1.10)
+    \begin{center}
+      \url{https://github.com/JuliaQuantumControl}
+    \end{center}
+    \vspace{8pt}
+    \subhead{QuantumPropagators.jl}
+    \begin{itemize}
+      \item Support for time-continuous controls (via DifferentialEquations.jl)
+    \end{itemize}
+    \vspace{10pt}
+    \subhead{QuantumControl.jl}
+    \begin{itemize}
+      \item Optimization methods for analytical pulse shapes (CRAB, GOAT, \dots)
+      \item Reinforcement learning
+    \end{itemize}
+    \vspace{24pt}
+    \begin{center}
+      {\bf \color{Red}
+        Users and Contributors welcome!
+      }
+    \end{center}
+    \vspace{5pt}
+    {\footnotesize
+      Please reach out by Email, GitHub, or \texttt{\#quantumcontrol} channel on the Julia Slack
+    }
+  \end{textblock}
+\end{frame}
+
+\end{document}
